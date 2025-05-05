@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres-container
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: theatres_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - D:/backend/Theatre-system/sql/bioskop/bioskop.sql:/docker-entrypoint-initdb.d/bioskop.sql
+
+volumes:
+  postgres_data: {} # Properly declare the named volume
