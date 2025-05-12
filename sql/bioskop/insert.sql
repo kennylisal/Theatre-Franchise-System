@@ -38,3 +38,102 @@ INSERT INTO movies (
 ('THTR007', 'XXI Premier', 'Tunjungan Plaza, Jl. Basuki Rahmat, Surabaya'),
 ('THTR008', 'Galaxy CGV', 'Summarecon Mall, Jl. Ahmad Yani, Bekasi'),
 ('THTR009', 'Cityplex XXI', 'Lippo Mall, Jl. Pahlawan, Makassar');
+
+INSERT INTO movie_cinemas(cinema_id, cinema_name, theatre_location, seating_schema, cinema_is_active,capacity) 
+VALUES('CNM-TSM-004', 'Cinema 4', 'xxaxx',
+    '[
+        {"row" : "A",
+        "column" : [
+            {"seat" : "01", "status" : "available"},
+            {"seat" : "02", "status" : "available"},
+            {"seat" : "03", "status" : "available"},
+            {"seat" : "XX", "status" : "lane"},
+            {"seat" : "04", "status" : "available"},
+            {"seat" : "05", "status" : "available"},
+            {"seat" : "06", "status" : "available"},
+            {"seat" : "07", "status" : "available"},
+            {"seat" : "08", "status" : "available"},
+            {"seat" : "09", "status" : "available"},
+            {"seat" : "XX", "status" : "lane"},
+            {"seat" : "10", "status" : "available"},
+            {"seat" : "11", "status" : "available"},
+            {"seat" : "12", "status" : "available"}
+        ]},
+        {"row" : "B",
+        "column" : [
+            {"seat" : "01", "status" : "available"},
+            {"seat" : "02", "status" : "available"},
+            {"seat" : "03", "status" : "available"},
+            {"seat" : "XX", "status" : "lane"},
+            {"seat" : "04", "status" : "available"},
+            {"seat" : "05", "status" : "available"},
+            {"seat" : "06", "status" : "available"},
+            {"seat" : "07", "status" : "available"},
+            {"seat" : "08", "status" : "available"},
+            {"seat" : "09", "status" : "available"},
+            {"seat" : "XX", "status" : "lane"},
+            {"seat" : "10", "status" : "available"},
+            {"seat" : "11", "status" : "available"},
+            {"seat" : "12", "status" : "available"}
+        ]},{"row" : "C",
+        "column" : [
+            {"seat" : "01", "status" : "available"},
+            {"seat" : "02", "status" : "available"},
+            {"seat" : "03", "status" : "available"},
+            {"seat" : "XX", "status" : "lane"},
+            {"seat" : "04", "status" : "available"},
+            {"seat" : "05", "status" : "available"},
+            {"seat" : "06", "status" : "available"},
+            {"seat" : "07", "status" : "available"},
+            {"seat" : "08", "status" : "available"},
+            {"seat" : "09", "status" : "available"},
+            {"seat" : "XX", "status" : "lane"},
+            {"seat" : "10", "status" : "available"},
+            {"seat" : "11", "status" : "available"},
+            {"seat" : "12", "status" : "available"}
+        ]},
+        {"row" : "D",
+        "column" : [
+            {"seat" : "01", "status" : "available"},
+            {"seat" : "02", "status" : "available"},
+            {"seat" : "03", "status" : "available"},
+            {"seat" : "XX", "status" : "lane"},
+            {"seat" : "04", "status" : "available"},
+            {"seat" : "05", "status" : "available"},
+            {"seat" : "06", "status" : "available"},
+            {"seat" : "07", "status" : "available"},
+            {"seat" : "08", "status" : "available"},
+            {"seat" : "09", "status" : "available"},
+            {"seat" : "XX", "status" : "lane"}
+        ]},
+                {"row" : "E",
+        "column" : [
+            {"seat" : "01", "status" : "available"},
+            {"seat" : "02", "status" : "available"},
+            {"seat" : "03", "status" : "available"},
+            {"seat" : "XX", "status" : "lane"},
+            {"seat" : "04", "status" : "available"},
+            {"seat" : "05", "status" : "available"},
+            {"seat" : "06", "status" : "available"},
+            {"seat" : "07", "status" : "available"},
+            {"seat" : "08", "status" : "available"},
+            {"seat" : "09", "status" : "available"},
+            {"seat" : "XX", "status" : "lane"}
+        ]},
+                {"row" : "F",
+        "column" : [
+            {"seat" : "01", "status" : "available"},
+            {"seat" : "02", "status" : "available"},
+            {"seat" : "03", "status" : "available"},
+            {"seat" : "XX", "status" : "lane"},
+            {"seat" : "04", "status" : "available"},
+            {"seat" : "05", "status" : "available"},
+            {"seat" : "06", "status" : "available"},
+            {"seat" : "07", "status" : "available"},
+            {"seat" : "08", "status" : "available"},
+            {"seat" : "09", "status" : "available"},
+            {"seat" : "XX", "status" : "lane"}
+        ]}
+    ]'
+,true,63);
+

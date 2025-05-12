@@ -16,20 +16,22 @@ async function addMovieSchedule(
   trx?: Knex.Transaction
 ) {
   const db = trx || knexDB;
-  const query = db("movie_schedules").insert({
-    movie: movieId,
-    started_at: timeStart,
-    end_at: timeEnd,
-    price: price,
-    cinema_location: cinema.cinemaId,
-    available_seating_schema: cinema.seatingSchema,
-    theatre_location: theatre,
-    buyed_seating_schema: {},
-  });
-  await executeQuery(query, "INSERT", "movie_schedules");
+  const query = db("movie_schedules")
+    .insert({
+      movie: movieId,
+      started_at: new Date(timeStart),
+      end_at: new Date(timeEnd),
+      price: price,
+      cinema_location: cinema.cinemaId,
+      available_seating_schema: cinema.seatingSchema,
+      theatre_location: theatre,
+      buyed_seating_schema: {},
+    })
+    .returning(["movie_schedule_id"]);
+  return await executeQuery<string>(query, "INSERT", "movie_schedules");
 }
 //cari schedule dari sebuah range
-async function getMovieSchedule(
+async function getMovieSchedules(
   theatre: string,
   timeStart: string,
   timeEnd: string,
@@ -50,6 +52,24 @@ async function getMovieSchedule(
   return result;
 }
 
+async function getMovieSchedule(
+  movieScheduleId: string,
+  trx?: Knex.Transaction
+): Promise<MovieSchedule[]> {
+  const db = trx || knexDB;
+  const result = await db("movie_schedules as ms")
+    .select(
+      "m.movie_name as movieName",
+      "ms.price as price",
+      "ms.started_at as timeStart",
+      "ms.end_at as timeEnd"
+    )
+    .join("movies as m", "m.movie_id", "=", "ms.movie")
+    .join("movie_cinemas as mc", "mc.cinema_id", "=", "ms.cinema_location")
+    .where("ms.movie_schedule_id", "=", movieScheduleId)
+    .first();
+  return result;
+}
 //nanti tambahi logger kalau sudah dites berhasil
 async function deleteMovieSchedule(
   movie_schedule: string,
@@ -74,6 +94,7 @@ async function getCinemaInfo(
   return result;
 }
 
+export { addMovieSchedule, getMovieSchedule };
 //schedule locket
 //hanya ad shift siang dan malam
 //jadi update hanya ganti employee

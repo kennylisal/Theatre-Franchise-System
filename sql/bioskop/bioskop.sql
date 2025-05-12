@@ -84,6 +84,8 @@ CREATE TABLE movie_cinemas(
     PRIMARY KEY(cinema_id)
 );
 
+
+
 CREATE TABLE movies(
     movie_name VARCHAR(50) NOT NULL,
     movie_id VARCHAR(50),
@@ -124,6 +126,9 @@ CREATE TABLE movie_schedules(
     CONSTRAINT fk_cinema FOREIGN KEY (cinema_location) REFERENCES movie_cinemas(cinema_id),
     CONSTRAINT fk_movie_id FOREIGN KEY (movie) REFERENCES movies(movie_id) 
 );
+
+
+
 
 CREATE TYPE transaction_type as ENUM ('offline','online');
 

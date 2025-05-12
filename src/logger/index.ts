@@ -24,19 +24,6 @@ const tesLogAdmin = async (
     employee_log_id: generateLogId(docuemntId, action),
   });
   await executeQuery(query, "INSERT", "employee_log");
-  // try {
-
-  // } catch (error) {
-  //   logger.error(
-  //     db("employee_log")
-  //       .insert({
-  //         employee_id: employeeId,
-  //         employee_action: action,
-  //         employee_log_id: generateLogId(docuemntId, action),
-  //       })
-  //       .toSQL().sql
-  //   );
-  // }
 };
 
 async function logAdminAction(

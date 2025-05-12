@@ -1,15 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import { auhtorizationSchema, AuthRequest } from "./interfaces.js";
-import jwt, { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import knexDB from "../config/knex_db.js";
 import {
-  AuthTokensPayload,
   EmployeeJWTData,
   EmployeeMiddlewareVerifData,
 } from "../router/auth/interfaces.js";
 import routeErrorHandler from "../utils/route-error-handler.js";
-import joiValidationtoAppError from "../utils/joi-validaton-errors.js";
-import Joi from "joi";
+
 import { AppError, HttpCode } from "../utils/app-error.js";
 import { getEmployeeJWTData, getRefreshTokenData } from "./query.js";
 import { getEmployeeCredential } from "../router/auth/query.js";
@@ -37,13 +35,10 @@ const authValidator = async (
       token,
       process.env.JWT_SECRET_KEY || "jwt_secret_key"
     ) as EmployeeJWTData;
-    console.log(decoded);
     const user: EmployeeMiddlewareVerifData = await knexDB("employees")
       .select("employee_id", "employee_role", "account_username", "is_banned")
       .where("employee_id", "=", decoded.employee_id)
       .first();
-
-    console.log(user);
 
     if (!user) {
       res.status(401).json({ error: "Unauthorized: User not found" });
@@ -58,7 +53,7 @@ const authValidator = async (
     req.user = decoded;
     next();
   } catch (error) {
-    if (error instanceof TokenExpiredError) {
+    if (error instanceof jwt.TokenExpiredError) {
       try {
         const refreshToken = req.body.refreshToken;
         if (!refreshToken) {
@@ -103,56 +98,5 @@ const authValidator = async (
     }
   }
 };
-
-// async function refreshTokenFlow(
-//   next: NextFunction,
-//   refreshToken: any | undefined
-// ): Promise<AuthTokensPayload?> {
-//   try {
-//     if (!refreshToken) {
-//       throw new AppError(
-//         "No Refresh Token Found",
-//         HttpCode.BAD_REQUEST,
-//         "No Refresh Token Found on body",
-//         false
-//       );
-//     } else {
-//       const tokenData = await getRefreshTokenData(refreshToken);
-//       if (!tokenData)
-//         throw new AppError(
-//           "Authorization Error",
-//           HttpCode.FORBIDDEN,
-//           "No Token Credential Matched",
-//           false
-//         );
-//       if (tokenData.revoked || new Date() > new Date(tokenData.expire_at))
-//         throw new AppError(
-//           "Forbidden Access",
-//           HttpCode.FORBIDDEN,
-//           "Account authorization revoked",
-//           false
-//         );
-
-//       const credential = await getEmployeeJWTData(tokenData.employee_id);
-//       return await generateTokens(credential);
-//     }
-//   } catch (error) {
-//     routeErrorHandler(next, error);
-//   }
-// }
-
-async function modularJoiValidator(schema: any, next: NextFunction) {
-  try {
-    const validated = await auhtorizationSchema.validateAsync(schema, {
-      abortEarly: false,
-    });
-  } catch (error) {
-    if (error instanceof Joi.ValidationError)
-      next(joiValidationtoAppError(error));
-  }
-}
-
-//bikin function untuk proses jwt.veirfy baru next() kan data req.user
-//ini bisa dipakai untuk skenario expired dan non-expired
 
 export default authValidator;

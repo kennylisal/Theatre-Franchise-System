@@ -2,7 +2,7 @@ import express from "express";
 import { Knex } from "knex";
 import knexDB from "../../config/knex_db.js";
 import { generateRefreshToken, getEmployeeCredential } from "./query.js";
-import validateQuery from "../../middleware/validate-query.js";
+import validateBody from "../../middleware/validate-body.js";
 import {
   employeeCredentialSchema,
   employeeLoginValidationSchema,
@@ -28,7 +28,7 @@ const authRouter = express.Router();
 
 authRouter.post(
   "/login",
-  validateQuery(employeeLoginValidationSchema),
+  validateBody(employeeLoginValidationSchema),
   async (
     req: express.Request,
     res: express.Response,

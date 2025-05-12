@@ -1,5 +1,5 @@
 interface CinemaInfo {
-  cinemaId: number;
+  cinemaId: string;
   capacity: number;
   seatingSchema: object;
   cinemaName: string;

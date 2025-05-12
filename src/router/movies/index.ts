@@ -1,25 +1,20 @@
 import express, { NextFunction } from "express";
-import Joi from "joi";
 import { AuthRequest } from "../../middleware/interfaces.js";
-import authValidator from "../../middleware/authMiddleware.js";
 import routeErrorHandler from "../../utils/route-error-handler.js";
-import validateQuery from "../../middleware/validate-query.js";
-import { createMovieSchema } from "./joi-schema.js";
+import validateBody from "../../middleware/validate-body.js";
+import { createMovieSchema, getActiveMoviesSchema } from "./joi-schema.js";
 import { CreateMovieSchema } from "./interface.js";
 import knexDB from "../../config/knex_db.js";
-import { insertMovie } from "./query.js";
+import { getActiveMovies, insertMovie } from "./query.js";
 import { tesLogAdmin } from "../../logger/index.js";
-import { Knex } from "knex";
-import { AppError, HttpCode } from "../../utils/app-error.js";
-import { EmployeeJWTData } from "../auth/interfaces.js";
+import validateQuery from "../../middleware/validate-query.js";
 
 const moviesRouter = express.Router();
 
 moviesRouter.post(
   "/create",
-  validateQuery(createMovieSchema),
+  validateBody(createMovieSchema),
   async (req: AuthRequest, res: express.Response, next: NextFunction) => {
-    console.log("Masuk create movies utama");
     try {
       const data: CreateMovieSchema = req.body;
       await knexDB.transaction(async (trx) => {
@@ -32,10 +27,8 @@ moviesRouter.post(
           data.externalLink,
           trx
         );
-        employeeLogData("INSERT", movieId, req.user, trx);
-        // if (!req.user) throw new Error("Token tidak valid Ketika ngelog");
-        // else await tesLogAdmin(req.user.user_id, "INSERT", movieId, trx);
-        // await tesLogAdmin("lisal_admin", "INSERT", movieId, trx);
+        if (req.user)
+          await tesLogAdmin(req.user.employee_id, "INSERT", movieId, trx);
       });
       res
         .status(200)
@@ -46,25 +39,79 @@ moviesRouter.post(
   }
 );
 
-async function employeeLogData(
-  action: string,
-  docuemntId: string,
-  employee?: EmployeeJWTData,
-  trx?: Knex.Transaction
-) {
-  try {
-    if (!employee) throw new Error("Token tidak valid Ketika ngelog");
-    else await tesLogAdmin(employee.employee_id, action, docuemntId, trx);
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Unknown Error occured";
-    throw new AppError(
-      "Token authorization tidak tersedia",
-      HttpCode.BAD_REQUEST,
-      message,
-      true
-    );
+moviesRouter.get(
+  "/activeMovies",
+  validateQuery(getActiveMoviesSchema),
+  async (req: express.Request, res: express.Response, next: NextFunction) => {
+    try {
+      const { limit, orderBy } = req.query as {
+        limit?: string;
+        orderBy?: string;
+      };
+      const movies = await getActiveMovies({
+        limit: limit ? Number(limit) : undefined,
+        orderBy: orderBy ? orderBy : undefined,
+      });
+      res.status(200).send(movies);
+    } catch (error) {
+      routeErrorHandler(next, error);
+    }
   }
-}
+);
 
 export default moviesRouter;
+
+// router.get(
+//   '/movies',
+//   authValidator,
+//   validateQuery(movieQuerySchema),
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//       const {
+//         orderBy,
+//         desc,
+//         searchQuery,
+//         movieStatus,
+//         firstRange,
+//         secondRange,
+//         limit,
+//         offset,
+//       } = req.query as {
+//         orderBy?: string;
+//         desc?: string;
+//         searchQuery?: string;
+//         movieStatus?: string;
+//         firstRange?: string;
+//         secondRange?: string;
+//         limit?: string;
+//         offset?: string;
+//       };
+
+//       const result = await getMovies(
+//         {
+//           orderBy,
+//           desc: desc === 'true' ? true : desc === 'false' ? false : undefined,
+//           searchQuery,
+//           movieStatus:
+//             movieStatus === 'true' ? true : movieStatus === 'false' ? false : undefined,
+//           firstRange,
+//           secondRange,
+//           limit: limit ? Number(limit) : undefined,
+//           offset: offset ? Number(offset) : undefined,
+//         },
+//         undefined // Pass trx if needed
+//       );
+
+//       res.json({
+//         data: result.data,
+//         meta: {
+//           limit: limit ? Number(limit) : 10,
+//           offset: offset ? Number(offset) : 0,
+//           total: result.total,
+//         },
+//       });
+//     } catch (error) {
+//       next(error);
+//     }
+//   }
+// );

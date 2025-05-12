@@ -3,6 +3,7 @@ import knexDB from "../../config/knex_db.js";
 import executeQuery from "../../utils/query-helper.js";
 import { MovieResult } from "./interface.js";
 import { QueryStringResult } from "../../global/interfaces.js";
+import { build } from "joi";
 
 async function insertMovie(
   movieName: string,
@@ -72,4 +73,31 @@ async function getMovies(
   return result;
 }
 
-export { insertMovie };
+async function getActiveMovies({
+  limit = 20,
+  orderBy = "created_at",
+  trx,
+}: {
+  limit?: number;
+  orderBy?: string;
+  trx?: Knex.Transaction;
+}): Promise<MovieResult[]> {
+  const db = trx || knexDB;
+  const result = await db("movies")
+    .select(
+      "movie_name",
+      "external_link",
+      "external_info",
+      "created_at",
+      "movie_image",
+      "movie_duration"
+    )
+    .where("movie_is_active", "=", true)
+    .limit(limit)
+    .modify((query) => {
+      if (orderBy) query.orderBy(orderBy);
+    });
+  return result;
+}
+
+export { insertMovie, getActiveMovies };
