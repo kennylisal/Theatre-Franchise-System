@@ -3,10 +3,18 @@ import validateBody from "../../middleware/validate-body.js";
 import {
   createMovieScheduleSchema,
   getMovieScheduleQuery,
+  getMovieShowingQuery,
 } from "./joi-schema.js";
 import routeErrorHandler from "../../utils/route-error-handler.js";
-import { addMovieSchedule, getMovieSchedule } from "./query.js";
+import {
+  addMovieSchedule,
+  getCinemaInfo,
+  getMovieSchedule,
+  getMoviesShowing,
+} from "./query.js";
 import validateQuery from "../../middleware/validate-query.js";
+import knexDB from "../../config/knex_db.js";
+import { CinemaInfo } from "./interface.js";
 
 const movieScheduleRouter = express.Router();
 
@@ -19,17 +27,22 @@ movieScheduleRouter.post(
     next: express.NextFunction
   ) => {
     try {
-      const scheduleId = await addMovieSchedule(
-        req.body.movieId,
-        req.body.timeStart,
-        req.body.timeEnd,
-        req.body.price,
-        req.body.cinema,
-        req.body.theatre
-      );
+      const idBaru = await knexDB.transaction(async (trans) => {
+        const cinema: CinemaInfo = await getCinemaInfo(req.body.cinema);
+        const scheduleId = await addMovieSchedule(
+          req.body.movieId,
+          req.body.timeStart,
+          req.body.timeEnd,
+          req.body.price,
+          cinema,
+          trans
+        );
+        return scheduleId;
+      });
+
       res
         .status(200)
-        .send({ message: `Schedule film ${scheduleId} berhasil ditambahkan` });
+        .send({ message: `Schedule film ${idBaru} berhasil ditambahkan` });
     } catch (error) {
       routeErrorHandler(next, error);
     }
@@ -38,7 +51,7 @@ movieScheduleRouter.post(
 
 movieScheduleRouter.get(
   "/get",
-  validateQuery(getMovieScheduleQuery),
+  validateQuery(getMovieShowingQuery),
   async (
     req: express.Request,
     res: express.Response,
@@ -53,5 +66,27 @@ movieScheduleRouter.get(
   }
 );
 //nanti bikin lagi get movie schedule
+
+movieScheduleRouter.get(
+  "/getMovieShowing",
+  validateQuery(getMovieShowingQuery),
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    try {
+      const { theatreLocation, timeStart, timeEnd } = req.query as {
+        theatreLocation: string;
+        timeStart: string;
+        timeEnd: string;
+      };
+      const data = await getMoviesShowing(theatreLocation, timeStart, timeEnd);
+      res.status(200).send(data);
+    } catch (error) {
+      routeErrorHandler(next, error);
+    }
+  }
+);
 
 export default movieScheduleRouter;

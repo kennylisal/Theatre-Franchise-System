@@ -90,7 +90,8 @@ async function getActiveMovies({
       "external_info",
       "created_at",
       "movie_image",
-      "movie_duration"
+      "movie_duration",
+      "movie_id"
     )
     .where("movie_is_active", "=", true)
     .limit(limit)

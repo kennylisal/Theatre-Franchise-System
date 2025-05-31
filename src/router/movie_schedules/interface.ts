@@ -1,8 +1,9 @@
 interface CinemaInfo {
   cinemaId: string;
   capacity: number;
-  seatingSchema: object;
+  seatingSchema: any;
   cinemaName: string;
+  theatreLocation: string;
 }
 
 interface MovieSchedule {

@@ -5,6 +5,7 @@ import logger from "./utils/cli-logger.js";
 import moviesRouter from "./router/movies/index.js";
 import authRouter from "./router/auth/index.js";
 import cors from "cors";
+import movieScheduleRouter from "./router/movie_schedules/index.js";
 dotenv.config();
 const app = express();
 const port = process.env.APP_PORT || 3000;
@@ -17,6 +18,7 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/movies", moviesRouter);
 app.use("/auth", authRouter);
+app.use("/movieSchedule", movieScheduleRouter);
 
 app.use((err: AppError, req: Request, res: Response, next: NextFunction) => {
   logger.error({

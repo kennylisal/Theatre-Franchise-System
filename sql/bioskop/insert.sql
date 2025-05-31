@@ -137,3 +137,19 @@ VALUES('CNM-TSM-004', 'Cinema 4', 'xxaxx',
     ]'
 ,true,63);
 
+select (count(*)+1) from movie_schedules ms, movie_cinemas mc, theatres t where ms.cinema_location = mc.cinema_id and t.theatre_id = '';
+
+select mc.cinema_id, ms.movie, ms.started_at, ms.end_at, ms.price, ms.movie_schedule_id
+from movie_cinemas mc
+left join theatres t on t.theatre_id = mc.theatre_location
+left join movie_schedules ms on ms.cinema_location = mc.cinema_id
+where mc.theatre_location = 'xxaxx';
+
+select "mc"."cinema_id", "ms"."movie", "ms"."started_at", "ms"."end_at", "ms"."price", "ms"."movie_schedule_id" from "movie_cinemas" as "mc" left join "theatres" as "t" on "t"."theatre_id" = "mc"."theatre_location" left join "movie_schedules" as "ms" on "ms"."cinema_location" = "mc"."cinema_id" where "mc"."theatre_location" = 'xxaxx' and "ms"."started_at" between '2025-05-16T00:00:00' and '2025-05-16T23:59:59'
+
+select mc.cinema_id, mc.cinema_name, ms.movie, m.movie_name, m.movie_image, ms.started_at, ms.end_at,ms.price,ms.movie_schedule_id
+from movie_cinemas mc
+left join movie_schedules ms on ms.cinema_location = mc.cinema_id
+left join movies m on ms.movie = m.movie_id
+where mc.theatre_location = 'xxaxx'
+-- inner join theatres t on t.theatre_id = mc.theatre_location

@@ -126,7 +126,7 @@ CREATE TABLE movie_schedules(
     CONSTRAINT fk_cinema FOREIGN KEY (cinema_location) REFERENCES movie_cinemas(cinema_id),
     CONSTRAINT fk_movie_id FOREIGN KEY (movie) REFERENCES movies(movie_id) 
 );
-
+ALTER TABLE movie_schedules ADD schedule_status BOOLEAN DEFAULT TRUE;
 
 
 
