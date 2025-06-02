@@ -4,6 +4,7 @@ import {
   createMovieScheduleSchema,
   getMovieScheduleQuery,
   getMovieShowingQuery,
+  updateMovieScheduleSchema,
 } from "./joi-schema.js";
 import routeErrorHandler from "../../utils/route-error-handler.js";
 import {
@@ -11,12 +12,38 @@ import {
   getCinemaInfo,
   getMovieSchedule,
   getMoviesShowing,
+  updateMovieSchedule,
 } from "./query.js";
 import validateQuery from "../../middleware/validate-query.js";
 import knexDB from "../../config/knex_db.js";
 import { CinemaInfo } from "./interface.js";
 
 const movieScheduleRouter = express.Router();
+
+movieScheduleRouter.put(
+  "/update",
+  validateBody(updateMovieScheduleSchema),
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    try {
+      await updateMovieSchedule(
+        req.body.movieId,
+        req.body.timeStart,
+        req.body.timeEnd,
+        req.body.price,
+        req.body.movie_schedule_id
+      );
+      res.status(200).send({
+        message: `Schedule Film ${req.body.movie_schedule_id} berhasil ditambahkan`,
+      });
+    } catch (error) {
+      routeErrorHandler(next, error);
+    }
+  }
+);
 
 movieScheduleRouter.post(
   "/create",

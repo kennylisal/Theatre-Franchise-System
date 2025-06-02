@@ -6,6 +6,26 @@ import { CinemaInfo, MovieSchedule } from "./interface.js";
 import executeQuery from "../../utils/query-helper.js";
 
 //CRUD
+async function updateMovieSchedule(
+  movieId: string,
+  timeStart: string,
+  timeEnd: string,
+  price: number,
+  movie_schedule_id: string,
+  trx?: Knex.Transaction
+) {
+  const db = trx || knexDB;
+  const query = db("movie_schedules as ms")
+    .update({
+      movie: movieId,
+      started_at: new Date(timeStart),
+      end_at: new Date(timeEnd),
+      price: price,
+    })
+    .where("ms.movie_schedule_id", "=", movie_schedule_id);
+  return await executeQuery(query, "update", "movie_schedules");
+}
+
 async function addMovieSchedule(
   movieId: string,
   timeStart: string,
@@ -150,7 +170,13 @@ async function deleteMovieSchedule(
   await executeQuery(query, "DELETE", "movie_schedule");
 }
 
-export { addMovieSchedule, getMovieSchedule, getCinemaInfo, getMoviesShowing };
+export {
+  addMovieSchedule,
+  getMovieSchedule,
+  getCinemaInfo,
+  getMoviesShowing,
+  updateMovieSchedule,
+};
 //schedule locket
 //hanya ad shift siang dan malam
 //jadi update hanya ganti employee

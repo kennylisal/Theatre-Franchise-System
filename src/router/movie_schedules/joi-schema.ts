@@ -13,11 +13,22 @@ import Joi from "joi";
 //     cinemaName: Joi.string().required(),
 //   }),
 // }).required();
+
+const updateMovieScheduleSchema = Joi.object({
+  movieId: Joi.string().required(),
+  timeStart: Joi.string().required(),
+  timeEnd: Joi.string().required(),
+  price: Joi.number().required(),
+  movie_schedule_id: Joi.string().required(),
+})
+  .required()
+  .unknown(true);
+
 const createMovieScheduleSchema = Joi.object({
   movieId: Joi.string().required(),
   timeStart: Joi.string().required(),
   timeEnd: Joi.string().required(),
-  price: Joi.number().min(30000).required(),
+  price: Joi.number().min(25000).required(),
   cinema: Joi.string().required(),
 }).required();
 
@@ -38,4 +49,5 @@ export {
   createMovieScheduleSchema,
   getMovieScheduleQuery,
   getMovieShowingQuery,
+  updateMovieScheduleSchema,
 };
