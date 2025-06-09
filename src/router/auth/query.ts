@@ -2,9 +2,7 @@ import { Knex } from "knex";
 import knexDB from "../../config/knex_db.js";
 import { hashPassword } from "./password_config.js";
 import executeQuery from "../../utils/query-helper.js";
-import { tesLogAdmin } from "../../logger/index.js";
 import { EmployeeCredential } from "./interfaces.js";
-import routeErrorHandler from "../../utils/route-error-handler.js";
 
 //tambahi lognya abis ini
 //tes dulu ini yg dibawah
@@ -14,27 +12,33 @@ async function createEmployee(
   role: string,
   location: string,
   acc_status: string,
-  admin: string,
   trx?: Knex.Transaction
-) {
+): Promise<{ pesan: string; documentId: string }> {
   const db = trx || knexDB;
-  const hashedPassword = hashPassword(password);
-  const username = `${name.substring(2)}${usernameSuffix}`;
-  const query = db("employee").insert({
-    employe_id: knexDB.raw(
-      `'EMP/${location.substring(
-        3
-      )}/ || LPAD((SELECT COUNT(*) + 1 from employees where theatre_location ilike '%${location}%')::TEXT,3,'0')`
-    ),
-    employee_name: name,
-    account_password: hashedPassword,
-    employee_role: role,
-    theatre_location: location,
-    account_username: username,
-    account_status: acc_status,
-  });
-  const res = await executeQuery(query, "INSERT", "employee");
-  return `Username : ${username}\nPassword : ${password}`;
+  const hashedPassword = await hashPassword(password);
+  const username = `${name.substring(2)}${usernameSuffix()}`;
+
+  const query = db("employees")
+    .insert({
+      employee_id: knexDB.raw(
+        `'EMP/${location.substring(
+          3
+        )}/' || LPAD((SELECT (COUNT(*) + 1)::TEXT from employees where theatre_location ilike '%${location}%'),3,'0')`
+      ),
+      // employee_id: "EMP/X/5",
+      employee_name: name,
+      account_password: hashedPassword,
+      employee_role: role,
+      theatre_location: location,
+      account_username: username,
+      account_status: acc_status,
+    })
+    .returning(["employee_id"]);
+  const res = await executeQuery<string>(query, "INSERT", "employee");
+  return {
+    pesan: `Username : ${username}\nPassword : ${password}`,
+    documentId: res,
+  };
 }
 
 async function changeEmployeePassword(
@@ -43,8 +47,8 @@ async function changeEmployeePassword(
   trx?: Knex.Transaction
 ) {
   const db = trx || knexDB;
-  const hashedPassword = hashPassword(newPassword);
-  const query = db("employee")
+  const hashedPassword = await hashPassword(newPassword);
+  const query = db("employees")
     .update({ account_password: hashedPassword })
     .where({ account_username: username });
   const res = await executeQuery(query, "UPDATE", "employee");
@@ -82,8 +86,7 @@ async function getEmployeeCredential(
       "employee_role",
       "account_status",
       "account_password",
-      "account_username",
-      "is_banned"
+      "account_username"
     )
     .where("account_username", "=", username);
   const result = await executeQuery<EmployeeCredential[]>(
@@ -113,4 +116,9 @@ async function generateRefreshToken(
   await executeQuery(query, "INSERT", "employee_refresh_token");
 }
 
-export { getEmployeeCredential, generateRefreshToken };
+export {
+  getEmployeeCredential,
+  generateRefreshToken,
+  createEmployee,
+  changeEmployeePassword,
+};

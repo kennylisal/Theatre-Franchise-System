@@ -12,6 +12,7 @@ import {
   getCinemaInfo,
   getMovieSchedule,
   getMoviesShowing,
+  getSeatingSchema,
   updateMovieSchedule,
 } from "./query.js";
 import validateQuery from "../../middleware/validate-query.js";
@@ -19,6 +20,23 @@ import knexDB from "../../config/knex_db.js";
 import { CinemaInfo } from "./interface.js";
 
 const movieScheduleRouter = express.Router();
+
+movieScheduleRouter.get(
+  "/getScheduleSeating",
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    try {
+      const { movieScheduleId } = req.query as { movieScheduleId: string };
+      const schema = await getSeatingSchema(movieScheduleId);
+      res.status(200).send(schema);
+    } catch (error) {
+      routeErrorHandler(next, error);
+    }
+  }
+);
 
 movieScheduleRouter.put(
   "/update",

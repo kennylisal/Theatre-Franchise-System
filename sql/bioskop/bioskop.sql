@@ -31,7 +31,7 @@ CREATE TABLE employees(
     CONSTRAINT fk_theatre_loc FOREIGN KEY (theatre_location) REFERENCES theatres(theatre_id)
 );
 alter table employees add column account_username VARCHAR(50) NOT NULL;
-INSERT INTO employees (employee_id,employee_name,account_username,account_password,employee_role,account_status,theatre_location) VALUES ('lisal_admin','xaxa','ADMIN TSM','password','ER001','active','xxaxx');
+INSERT INTO employees (employee_id,employee_name,account_username,account_password,employee_role,account_status,theatre_location) VALUES ('lisal_admin','kenny','ADMIN TSM','password','ER001','active','xxaxx');
 
 
 CREATE TABLE employee_refresh_token(
@@ -84,7 +84,15 @@ CREATE TABLE movie_cinemas(
     PRIMARY KEY(cinema_id)
 );
 
-
+CREATE TABLE buyed_seating(
+    buyed_seating_id SERIAL PRIMARY KEY,
+    transaction_id VARCHAR(50) NOT NULL,
+    movie_schedule_id VARCHAR(50) NOT NULL,
+    keterangan VARCHAR(50) NOT NULL,
+    CONSTRAINT FK_seat_schedule FOREIGN KEY (movie_schedule_id) REFERENCES movie_schedules(movie_schedule_id),
+    CONSTRAINT FK_seat_transaction FOREIGN KEY (transaction_id) REFERENCES h_schedule_trans(transaction_id)
+);
+ALTER table buyed_seating add column seating_id VARCHAR(50) not null;
 
 CREATE TABLE movies(
     movie_name VARCHAR(50) NOT NULL,
@@ -100,7 +108,7 @@ CREATE TABLE movies(
 );
 ALTER TABLE movies ALTER COLUMN movie_id SET DATA TYPE VARCHAR(50);
 
-CREATE TABLE locket_shcedule(
+CREATE TABLE locket_schedule(
     schedule_id VARCHAR(50) NOT NULL,
     theatre_location VARCHAR(50),
     started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -108,9 +116,9 @@ CREATE TABLE locket_shcedule(
     PRIMARY KEY(schedule_id),
     CONSTRAINT fk_theatre_locket_schedule FOREIGN KEY (theatre_location) REFERENCES theatres(theatre_id)
 );
-ALTER TABLE locket_shcedule ADD locket_name VARCHAR(100) NOT NULL;
-ALTER TABLE locket_shcedule ADD employee VARCHAR(50) NOT NULL;
-ALTER TABLE locket_shcedule ADD CONSTRAINT fk_employee_schedule FOREIGN KEY(employee) REFERENCES employees(employee_id);
+ALTER TABLE locket_schedule ADD locket_name VARCHAR(100) NOT NULL;
+ALTER TABLE locket_schedule ADD employee VARCHAR(50) NOT NULL;
+ALTER TABLE locket_schedule ADD CONSTRAINT fk_employee_schedule FOREIGN KEY(employee) REFERENCES employees(employee_id);
 
 
 CREATE TABLE movie_schedules(

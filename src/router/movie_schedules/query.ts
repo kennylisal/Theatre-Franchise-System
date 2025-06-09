@@ -6,6 +6,22 @@ import { CinemaInfo, MovieSchedule } from "./interface.js";
 import executeQuery from "../../utils/query-helper.js";
 
 //CRUD
+async function getSeatingSchema(
+  movie_schedule_id: string,
+  trx?: Knex.Transaction
+) {
+  const db = trx || knexDB;
+  const cinemaId: { cinema_location: string } = await db("movie_schedules")
+    .select("cinema_location")
+    .where("movie_schedule_id", "=", movie_schedule_id)
+    .first();
+  const query = await db("movie_cinemas")
+    .select("seating_schema")
+    .where("cinema_id", "=", cinemaId.cinema_location)
+    .first();
+  return query;
+}
+
 async function updateMovieSchedule(
   movieId: string,
   timeStart: string,
@@ -112,31 +128,17 @@ async function getMoviesShowing(
       "ms.price",
       "ms.movie_schedule_id"
     )
-    .leftJoin(
-      "movie_schedules as ms",
-      "ms.cinema_location",
-      "=",
-      "mc.cinema_id"
-    )
-    .leftJoin("movies as m", "ms.movie", "=", "m.movie_id")
-    .leftJoin("movie_schedules as msx", function () {
+    .leftJoin("movie_schedules as ms", function () {
       this.on(
-        "msx.started_at",
-        "BETWEEN",
-        db.raw("? AND ?", [timeEnd, timeStart])
-      );
+        "ms.started_at",
+        "between",
+        db.raw("? and ?", [timeEnd, timeStart])
+      ).andOn("ms.cinema_location", "=", "mc.cinema_id");
     })
+
+    .leftJoin("movies as m", "ms.movie", "=", "m.movie_id")
     .where("mc.theatre_location", "=", theatreLocation)
     .orderBy("mc.cinema_name", "asc");
-  // .leftJoin("movie_schedules as msx", function () {
-  //   this.on("ms.cinema_location", "=", "mc.cinema_id").andOn(
-  //     "ms.started_at",
-  //     "BETWEEN",
-  //     db.raw("? AND ?", [timeEnd, timeStart])
-  //   );
-  // })
-
-  console.log(result.toSQL());
   return await result;
 }
 
@@ -176,6 +178,7 @@ export {
   getCinemaInfo,
   getMoviesShowing,
   updateMovieSchedule,
+  getSeatingSchema,
 };
 //schedule locket
 //hanya ad shift siang dan malam
