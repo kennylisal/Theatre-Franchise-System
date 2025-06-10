@@ -1,5 +1,5 @@
 import express, { NextFunction } from "express";
-import { AuthRequest } from "../../middleware/interfaces.js";
+import { ProtectedRequest } from "../../middleware/interfaces.js";
 import routeErrorHandler from "../../utils/route-error-handler.js";
 import validateBody from "../../middleware/validate-body.js";
 import { createMovieSchema, getActiveMoviesSchema } from "./joi-schema.js";
@@ -14,7 +14,7 @@ const moviesRouter = express.Router();
 moviesRouter.post(
   "/create",
   validateBody(createMovieSchema),
-  async (req: AuthRequest, res: express.Response, next: NextFunction) => {
+  async (req: ProtectedRequest, res: express.Response, next: NextFunction) => {
     try {
       const data: CreateMovieSchema = req.body;
       await knexDB.transaction(async (trx) => {

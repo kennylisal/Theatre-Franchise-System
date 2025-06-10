@@ -2,7 +2,7 @@ import { Knex } from "knex";
 import knexDB from "../../config/knex_db.js";
 import { hashPassword } from "./password_config.js";
 import executeQuery from "../../utils/query-helper.js";
-import { EmployeeCredential } from "./interfaces.js";
+import { EmployeeCredential, EmployeeJWTData } from "./interfaces.js";
 
 //tambahi lognya abis ini
 //tes dulu ini yg dibawah
@@ -97,6 +97,28 @@ async function getEmployeeCredential(
   return result[0];
 }
 
+async function getEmployeeCredentialwithId(
+  id: string,
+  trx?: Knex.Transaction
+): Promise<EmployeeCredential> {
+  //kalau kembali @-x-@ -> artinya masalah kredensial
+  //kalau kembalikan accountBanned artinya well banned
+  //kalau kembalikan accountInavtive artinya sedang non-aktif
+  const db = trx || knexDB;
+  const query = db("employees")
+    .select(
+      "employee_id",
+      "employee_role",
+      "account_status",
+      "account_password",
+      "account_username"
+    )
+    .where("employee_id", "=", id)
+    .first();
+
+  return query;
+}
+
 async function generateRefreshToken(
   employee_id: string,
   token: string,
@@ -109,11 +131,23 @@ async function generateRefreshToken(
       employee_id: employee_id,
       token: token,
       expire_at: expireAt,
-      account: "active",
+      revoked: false,
     })
     .onConflict("employee_id")
     .merge({ token: token, expire_at: expireAt });
   await executeQuery(query, "INSERT", "employee_refresh_token");
+}
+
+async function getEmployeeData(
+  employee_id: string,
+  trx?: Knex.Transaction
+): Promise<EmployeeJWTData> {
+  const db = trx || knexDB;
+  const query = await db("employees as e")
+    .select("e.employee_id", "e.employee_role", "e.account_username")
+    .where("e.employee_id", "=", employee_id)
+    .first();
+  return query;
 }
 
 export {
@@ -121,4 +155,6 @@ export {
   generateRefreshToken,
   createEmployee,
   changeEmployeePassword,
+  getEmployeeData,
+  getEmployeeCredentialwithId,
 };

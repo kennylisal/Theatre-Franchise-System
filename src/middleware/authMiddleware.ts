@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { auhtorizationSchema, AuthRequest } from "./interfaces.js";
+import { auhtorizationSchema, ProtectedRequest } from "./interfaces.js";
 import jwt from "jsonwebtoken";
 import knexDB from "../config/knex_db.js";
 import {
@@ -14,7 +14,7 @@ import { getEmployeeCredential } from "../router/auth/query.js";
 import { generateTokens } from "../router/auth/utils.js";
 
 const authValidator = async (
-  req: AuthRequest,
+  req: ProtectedRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {

@@ -7,7 +7,7 @@ import {
 interface HeaderRequest {
   authorization: string;
 }
-interface AuthRequest extends Request {
+interface ProtectedRequest extends Request {
   user?: EmployeeJWTData;
 }
 
@@ -23,4 +23,4 @@ const auhtorizationSchema = Joi.object<HeaderRequest>({
 }).unknown(true);
 //allow unknown headers
 
-export { auhtorizationSchema, AuthRequest, RefreshTokenData };
+export { auhtorizationSchema, ProtectedRequest, RefreshTokenData };

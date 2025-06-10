@@ -28,4 +28,21 @@ async function generateTokens(
   };
 }
 
-export { generateTokens };
+async function generateAccesToken(
+  credential: EmployeeJWTData
+): Promise<string> {
+  const jwtSecret = process.env.JWT_SECRET_KEY || "jwt-secret-key";
+  const accessToken = jwt.sign(
+    {
+      employee_id: credential.employee_id,
+      employee_role: credential.employee_role,
+      account_username: credential.account_username,
+    },
+    jwtSecret,
+    { expiresIn: "1h" }
+  );
+  //
+  return accessToken;
+}
+
+export { generateTokens, generateAccesToken };

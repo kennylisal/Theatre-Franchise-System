@@ -15,7 +15,7 @@ function routeErrorHandler(next: NextFunction, error: unknown) {
       "Backend Error",
       HttpCode.INTERNAL_SERVER_ERROR,
       message,
-      true
+      false
     );
     console.log(appErr.message);
     next(appErr);
