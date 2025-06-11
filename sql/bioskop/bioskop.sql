@@ -161,3 +161,32 @@ CREATE TABLE d_schedule_trans(
 );
 ALTER TABLE d_schedule_trans ADD employee INT NOT NULL;
 
+-- bagian user
+CREATE TABLE user_credentials(
+    user_id VARCHAR(50) NOT NULL,
+    username VARCHAR(50) NOT NULL,
+    user_password VARCHAR(100) NOT NULL, 
+    is_banned boolean DEFAULT false,
+    PRIMARY KEY(user_id)
+);
+
+CREATE TABLE user_details(
+    id SERIAL PRIMARY KEY,
+    user_id VARCHAR(50) NOT NULL,
+    user_name VARCHAR(50) NOT NULL,
+    date_of_birth TIMESTAMP,
+    user_image VARCHAR(100) NOT NULL,
+    CONSTRAINT fk_user_id FOREIGN KEY(user_id) REFERENCES user_credentials(user_id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE user_refresh_token(
+    id SERIAL PRIMARY KEY,
+    user_id VARCHAR(50) NOT NULL UNIQUE,
+    token VARCHAR(155) NOT NULL,
+    expire_at TIMESTAMP NOT NULL,
+    revoked boolean DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_user_refresh FOREIGN KEY(user_id) REFERENCES user_credentials(user_id)
+);

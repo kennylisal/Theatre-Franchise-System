@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import { AppError, HttpCode } from "./utils/app-error.js";
 import logger from "./utils/cli-logger.js";
 import moviesRouter from "./router/movies/index.js";
-import authRouter from "./router/auth/index.js";
+import authRouter from "./router/admin-auth/index.js";
 import cors from "cors";
 import movieScheduleRouter from "./router/movie_schedules/index.js";
 import workScheduleRouter from "./router/work_schedule/index.js";
@@ -15,7 +15,11 @@ const port = process.env.APP_PORT || 3000;
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://localhost:5174",
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "http://localhost:3000",
+    ],
     credentials: true,
   })
 );

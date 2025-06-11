@@ -5,7 +5,7 @@ import { tesLogAdmin } from "../logger/index.js";
 import {
   hashPassword,
   matchCryptedPassword,
-} from "../router/auth/password_config.js";
+} from "../router/admin-auth/password_config.js";
 program
   .version("1.0.0")
   .description("Ini CLI awal lmao")

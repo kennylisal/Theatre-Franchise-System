@@ -4,29 +4,19 @@ import knexDB from "../../config/knex_db.js";
 import {
   changeEmployeePassword,
   createEmployee,
-  generateRefreshToken,
   getEmployeeCredential,
   getEmployeeData,
 } from "./query.js";
 import validateBody from "../../middleware/validate-body.js";
-import {
-  employeeCredentialSchema,
-  employeeLoginValidationSchema,
-} from "./joi-schemas.js";
-import { hashPassword, matchCryptedPassword } from "./password_config.js";
+import { employeeLoginValidationSchema } from "./joi-schemas.js";
 import dotenv from "dotenv";
 import { ProtectedRequest } from "../../middleware/interfaces.js";
-import authValidator from "../../middleware/authMiddleware.js";
-import { AppError, HttpCode } from "../../utils/app-error.js";
 import routeErrorHandler from "../../utils/route-error-handler.js";
-import {
-  AuthTokensPayload,
-  EmployeeCredential,
-  EmployeeJWTData,
-} from "./interfaces.js";
+
 import { generateTokens } from "./utils.js";
 import { adminLog } from "../../logger/query.js";
 import { verifyToken } from "./middlewares.js";
+import { matchCryptedPassword } from "./password_config.js";
 dotenv.config();
 //login employee itu dua tahap
 //pertama cek ada tidak kredensialnya & dia ter-banned tidak
@@ -54,16 +44,17 @@ authRouter.post(
       );
       if (isPasswordMatched) {
         const result = await generateTokens(credential);
+        // console.log(result);
         res.cookie("accessToken", result.accessToken, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "strict",
-          maxAge: 60 * 60 * 1000,
+          secure: false,
+          sameSite: "lax",
+          maxAge: 15 * 60 * 1000,
         });
         res.cookie("refreshToken", result.refreshToken, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "strict",
+          secure: false,
+          sameSite: "lax",
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days (matches refresh token expiration)
         });
         res.status(200).json({ message: "berhasil login" });
@@ -73,55 +64,25 @@ authRouter.post(
     }
   }
 );
-// const jwtSecret = process.env.JWT_SECRET_KEY || "jwt-secret-key";
-// const accessToken = jwt.sign(
-//   {
-//     employee_id: credential.employee_id,
-//     employee_role: credential.employee_role,
-//     account_username: credential.account_username,
-//   },
-//   jwtSecret,
-//   { expiresIn: "1h" }
-// );
-// //
-// const secretKey = CryptoJS.lib.WordArray.random(32).toString(
-//   CryptoJS.enc.Hex
-// );
-// const expireAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-// await generateRefreshToken(credential.employee_id, secretKey, expireAt);
-//
-
-//ini khusus untuk pertama ambil data" penting
-//pertama ambil data dari header -> ke req,user
-authRouter.post(
-  "/refresh",
-  authValidator,
+authRouter.get(
+  "/employeeData",
+  verifyToken,
   async (
     req: ProtectedRequest,
     res: express.Response,
     next: express.NextFunction
   ) => {
     try {
-      if (req.user) {
-        const empCredential: EmployeeJWTData = {
-          employee_id: req.user.employee_id,
-          employee_role: req.user.employee_role,
-          account_username: req.user.account_username,
-        };
-        const result = generateTokens(empCredential);
-        res.status(200).json(req.user);
-      } else
-        throw new AppError(
-          "Token Tidak ditemukan",
-          HttpCode.INTERNAL_SERVER_ERROR,
-          "path /getCredential tidak temukan token",
-          true
-        );
+      const { employee_id } = req.user!;
+      const result = await getEmployeeData(employee_id);
+      res.status(200).json(result);
     } catch (error) {
       routeErrorHandler(next, error);
     }
   }
 );
+
+//
 
 authRouter.post(
   "/createEmployee",
@@ -182,22 +143,34 @@ authRouter.put(
 );
 
 //ingat disini tes coba ambil cookie
-authRouter.get(
-  "/employeeData",
-  verifyToken,
-  async (
-    req: ProtectedRequest,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    try {
-      const { employee_id } = req.user!;
-      const result = await getEmployeeData(employee_id);
-      res.status(200).json(result);
-    } catch (error) {
-      routeErrorHandler(next, error);
-    }
-  }
-);
+// authRouter.post(
+//   "/refresh",
+//   authValidator,
+//   async (
+//     req: ProtectedRequest,
+//     res: express.Response,
+//     next: express.NextFunction
+//   ) => {
+//     try {
+//       if (req.user) {
+//         const empCredential: EmployeeJWTData = {
+//           employee_id: req.user.employee_id,
+//           employee_role: req.user.employee_role,
+//           account_username: req.user.account_username,
+//         };
+//         const result = generateTokens(empCredential);
+//         res.status(200).json(req.user);
+//       } else
+//         throw new AppError(
+//           "Token Tidak ditemukan",
+//           HttpCode.INTERNAL_SERVER_ERROR,
+//           "path /getCredential tidak temukan token",
+//           true
+//         );
+//     } catch (error) {
+//       routeErrorHandler(next, error);
+//     }
+//   }
+// );
 
 export default authRouter;

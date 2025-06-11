@@ -3,6 +3,7 @@ import knexDB from "../../config/knex_db.js";
 import { hashPassword } from "./password_config.js";
 import executeQuery from "../../utils/query-helper.js";
 import { EmployeeCredential, EmployeeJWTData } from "./interfaces.js";
+import { RefreshTokenData } from "../../middleware/interfaces.js";
 
 //tambahi lognya abis ini
 //tes dulu ini yg dibawah
@@ -150,6 +151,25 @@ async function getEmployeeData(
   return query;
 }
 
+async function getRefreshTokenData(token: string): Promise<RefreshTokenData> {
+  const result: RefreshTokenData = await knexDB("employee_refresh_token")
+    .select("employee_id", "revoked", "token", "expire_at")
+    .where("token", "=", token)
+    .first();
+  return result;
+}
+
+async function getEmployeeJWTData(
+  employe_id: string
+): Promise<EmployeeJWTData> {
+  const db = knexDB;
+  const query = await db("employees")
+    .select("employee_id", "employee_role", "account_username")
+    .where("employee_id", "=", employe_id)
+    .first();
+
+  return query;
+}
 export {
   getEmployeeCredential,
   generateRefreshToken,
@@ -157,4 +177,6 @@ export {
   changeEmployeePassword,
   getEmployeeData,
   getEmployeeCredentialwithId,
+  getRefreshTokenData,
+  getEmployeeJWTData,
 };

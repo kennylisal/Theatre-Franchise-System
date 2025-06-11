@@ -3,7 +3,7 @@ import { Request } from "express";
 import {
   CredentialPayload,
   EmployeeJWTData,
-} from "../router/auth/interfaces.js";
+} from "../router/admin-auth/interfaces.js";
 interface HeaderRequest {
   authorization: string;
 }
