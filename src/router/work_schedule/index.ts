@@ -10,6 +10,7 @@ import {
   addWorkSchedule,
   getAdminTheatreLocation,
   getAllEmployeeData,
+  getEmployeeWorkSchdule,
   getLocketSchedule,
 } from "./query.js";
 import validateQuery from "../../middleware/validate-query.js";
@@ -81,6 +82,22 @@ workScheduleRouter.get(
       //harusnya dapat ini dari bearer lagi
       const theatreLocation = await getAdminTheatreLocation("lisal_admin");
       const data = await getAllEmployeeData(theatreLocation.theatre_location);
+      res.status(200).json(data);
+    } catch (error) {
+      routeErrorHandler(next, error);
+    }
+  }
+);
+
+workScheduleRouter.get(
+  "/getEmployeeSchedule",
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    try {
+      const data = await getEmployeeWorkSchdule("EMP/xx/002");
       res.status(200).json(data);
     } catch (error) {
       routeErrorHandler(next, error);

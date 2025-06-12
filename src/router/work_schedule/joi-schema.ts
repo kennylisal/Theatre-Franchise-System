@@ -16,4 +16,5 @@ const getWorkScheduleSchema = Joi.object({
 })
   .required()
   .unknown(true);
+
 export { createWorkScheduleSchema, getWorkScheduleSchema };

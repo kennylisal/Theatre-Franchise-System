@@ -1,9 +1,7 @@
-//tiap bioskop punya 2 locket
-
 import { Knex } from "knex";
 import knexDB from "../../config/knex_db.js";
 import executeQuery from "../../utils/query-helper.js";
-import dayjs from "dayjs";
+import { EmployeeWorkSchduleType } from "./interface.js";
 
 //tambah logger ke semua
 async function addWorkSchedule(
@@ -33,7 +31,9 @@ async function deleteWorkSchedule(scheduleId: string, trx?: Knex.Transaction) {
   const db = trx || knexDB;
   const query = db("locket_schedule")
     .where("schedule_id", "=", scheduleId)
-    .delete();
+    .update({
+      is_active: false,
+    });
   await executeQuery(query, "DELETE", "locket_schedule");
 }
 
@@ -74,8 +74,21 @@ async function getLocketSchedule(
 
   return await executeQuery(result, "GET", "locket_schedule");
 }
-//ini pakai range
-// async function getSchedule
+
+async function getEmployeeWorkSchdule(
+  employee_id: string,
+  trx?: Knex.Transaction
+): Promise<EmployeeWorkSchduleType[]> {
+  const db = trx || knexDB;
+  const result = await db("locket_schedule")
+    .select("started_at", "end_at", "locket_name", "schedule_id")
+    .where({
+      employee: employee_id,
+      is_active: true,
+    })
+    .orderBy("started_at", "desc");
+  return result;
+}
 
 async function getAdminTheatreLocation(
   adminId: string,
@@ -106,33 +119,11 @@ async function getAllEmployeeData(
   return await executeQuery(result, "GET", "employees");
 }
 
-// async function getAllSchedule(
-//   tglAwal: string,
-//   theatre: string,
-//   trx?: Knex.Transaction
-// ) {
-//   //ambil 1 minggu setelah tgl body
-//   const db = trx || knexDB;
-//   const awal = dayjs(tglAwal);
-//   const akhir = dayjs(tglAwal).add(7, "day");
-//   const result = db("locket_schedule as ls")
-//     .select(
-//       "ls.started_at",
-//       "ls.end_at",
-//       "ls.locket_name",
-//       "e.employee_name",
-//       "ls.schedule_id"
-//     )
-//     .whereBetween("ls.started_at", [awal, akhir])
-//     .where("ls.theatre_location", "=", theatre)
-//     .join("employees as e", "e.employee.id", "=", "ls.employee");
-
-//   return await executeQuery(result, "GET", "locket_schedule & employee");
-// }
 export {
   addWorkSchedule,
   getLocketSchedule,
   getAdminTheatreLocation,
   getAllEmployeeData,
-  // getAllSchedule,
+  deleteWorkSchedule,
+  getEmployeeWorkSchdule,
 };

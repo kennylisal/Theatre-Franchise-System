@@ -10,17 +10,21 @@ async function createUserCredentials(
   tglLahir: string,
   password: string,
   trx?: Knex.Transaction
-) {
+): Promise<{ user_id: string; username: string }> {
   const db = trx || knexDB;
   const hashedPassword = await hashPassword(password);
-  const query = db("user_credentsials")
+  const query = db("user_credentials")
     .insert({
-      user_id: db.raw(`${name.substring(0, 2)}/${tglLahir.substring(0, 10)}`),
+      user_id: db.raw(`'${name.substring(0, 2)}/${tglLahir.substring(0, 10)}'`),
       username: username,
       user_password: hashedPassword,
     })
     .returning(["user_id", "username"]);
-  const result = await executeQuery<string>(query, "INSERT", "user_credential");
+  const result = await executeQuery<{ user_id: string; username: string }[]>(
+    query,
+    "INSERT",
+    "user_credential"
+  );
   return result[0];
 }
 

@@ -119,6 +119,7 @@ CREATE TABLE locket_schedule(
 ALTER TABLE locket_schedule ADD locket_name VARCHAR(100) NOT NULL;
 ALTER TABLE locket_schedule ADD employee VARCHAR(50) NOT NULL;
 ALTER TABLE locket_schedule ADD CONSTRAINT fk_employee_schedule FOREIGN KEY(employee) REFERENCES employees(employee_id);
+ALTER TABLE locket_schedule ADD is_active BOOLEAN DEFAULT TRUE;
 
 
 CREATE TABLE movie_schedules(

@@ -8,6 +8,7 @@ import cors from "cors";
 import movieScheduleRouter from "./router/movie_schedules/index.js";
 import workScheduleRouter from "./router/work_schedule/index.js";
 import cookieParser from "cookie-parser";
+import userAuth from "./router/user_auth/index.js";
 dotenv.config();
 const app = express();
 const port = process.env.APP_PORT || 3000;
@@ -32,6 +33,7 @@ app.use("/movies", moviesRouter);
 app.use("/auth", authRouter);
 app.use("/movieSchedule", movieScheduleRouter);
 app.use("/workSchedule", workScheduleRouter);
+app.use("/userAuth", userAuth);
 
 process.on("uncaughtException", (error: Error) => {
   logger.error({

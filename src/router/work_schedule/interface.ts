@@ -6,4 +6,11 @@ interface CreateScheduleType {
   locketName: string;
 }
 
-export { type CreateScheduleType as CreateMovieType };
+interface EmployeeWorkSchduleType {
+  started_at: string;
+  end_at: string;
+  locket_name: string;
+  schedule_id: string;
+}
+
+export { type CreateScheduleType as CreateMovieType, EmployeeWorkSchduleType };
