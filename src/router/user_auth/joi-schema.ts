@@ -8,4 +8,9 @@ const signUpSchema = Joi.object({
   dateOfBirth: Joi.string().required(),
 }).required();
 
-export { signUpSchema };
+const loginSchema = Joi.object({
+  username: Joi.string().required(),
+  password: Joi.string().required(),
+});
+
+export { signUpSchema, loginSchema };

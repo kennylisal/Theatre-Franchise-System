@@ -1,7 +1,8 @@
 import { AuthTokensPayload, EmployeeJWTData } from "./interfaces.js";
-import jwt from "jsonwebtoken";
+
 import { generateRefreshToken } from "./query.js";
 import CryptoJS from "crypto-js";
+import jwt from "jsonwebtoken";
 
 async function generateTokens(
   credential: EmployeeJWTData
