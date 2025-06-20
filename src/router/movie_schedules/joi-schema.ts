@@ -45,9 +45,14 @@ const getMovieShowingQuery = Joi.object({
   timeEnd: Joi.string().required(),
 }).required();
 
+const getTheatreMovieQuery = Joi.object({
+  timeStart: Joi.string().required(),
+}).required();
+
 export {
   createMovieScheduleSchema,
   getMovieScheduleQuery,
   getMovieShowingQuery,
   updateMovieScheduleSchema,
+  getTheatreMovieQuery,
 };

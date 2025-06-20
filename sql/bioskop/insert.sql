@@ -254,3 +254,5 @@ where mc.theatre_location = 'xxaxx'
 'LSD/xxaxx/' || LPAD((select (count(*) + 1)::TEXT from locket_schedule where theatre_location = 'xxaxx'),3,'0')
 
 select "e"."employee_name", "ls"."locket_name", "ls"."started_at", "ls"."end_at", "ls"."schedule_id" from "locket_schedule" as "ls" inner join "employees" as "e" on "e"."employee_id" = "ls"."employee" where "ls"."theatre_location" = 'xxaxx' and "ls"."started_at" between '2025-06-07T00:00' and '2025-06-14T00:00'
+
+INSERT INTO movie_schedules VALUES('238','2025-05-16 06:00:00', '2025-05-16 09:00:00', 35000, 'xx00010', 'CNM-TSM-004');

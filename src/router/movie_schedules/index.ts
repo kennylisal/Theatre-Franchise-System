@@ -4,6 +4,7 @@ import {
   createMovieScheduleSchema,
   getMovieScheduleQuery,
   getMovieShowingQuery,
+  getTheatreMovieQuery,
   updateMovieScheduleSchema,
 } from "./joi-schema.js";
 import routeErrorHandler from "../../utils/route-error-handler.js";
@@ -12,12 +13,15 @@ import {
   getCinemaInfo,
   getMovieSchedule,
   getMoviesShowing,
+  getMoviesShowingAtDate,
   getSeatingSchema,
   updateMovieSchedule,
 } from "./query.js";
 import validateQuery from "../../middleware/validate-query.js";
 import knexDB from "../../config/knex_db.js";
 import { CinemaInfo } from "./interface.js";
+import { verifyToken } from "../admin-auth/middlewares.js";
+import dayjs from "dayjs";
 
 const movieScheduleRouter = express.Router();
 
@@ -128,6 +132,28 @@ movieScheduleRouter.get(
       };
       const data = await getMoviesShowing(theatreLocation, timeStart, timeEnd);
       res.status(200).send(data);
+    } catch (error) {
+      routeErrorHandler(next, error);
+    }
+  }
+);
+
+movieScheduleRouter.get(
+  "/getTransactionalMovie",
+  validateQuery(getTheatreMovieQuery),
+  // verifyToken,
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    try {
+      const { timeStart } = req.query as { timeStart: string };
+      const date = dayjs(timeStart);
+      const getMovieData = await getMoviesShowingAtDate(
+        date.startOf("day").format("YYYY-MM-DDTHH:mm:ss"),
+        date.endOf("day").format("YYYY-MM-DDTHH:mm:ss")
+      );
     } catch (error) {
       routeErrorHandler(next, error);
     }

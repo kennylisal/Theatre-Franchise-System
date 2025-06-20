@@ -172,6 +172,21 @@ async function deleteMovieSchedule(
   await executeQuery(query, "DELETE", "movie_schedule");
 }
 
+async function getMoviesShowingAtDate(
+  timeStart: string,
+  timeEnd: string,
+  trx?: Knex.Transaction
+) {
+  const db = trx || knexDB;
+  const query = await db("movie_schedules as ms")
+    .join("movies as m", "m.movie_id", "=", "ms.movie")
+    .whereBetween("ms.started_at", [timeStart, timeEnd])
+    .select(
+      "m.movie, m.movie_name, ms.started_at, ms.movie_schedule_id,m.movie_image"
+    );
+  return query;
+}
+
 export {
   addMovieSchedule,
   getMovieSchedule,
@@ -179,6 +194,7 @@ export {
   getMoviesShowing,
   updateMovieSchedule,
   getSeatingSchema,
+  getMoviesShowingAtDate,
 };
 //schedule locket
 //hanya ad shift siang dan malam
