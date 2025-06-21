@@ -75,24 +75,25 @@ CREATE TABLE movie_cinemas(
     cinema_id VARCHAR(50),
     cinema_name VARCHAR(50),
     theatre_location VARCHAR(50),
-    seating_schema JSONB NOT NULL,
     cinema_is_active boolean,
-    capacity INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    base_layout INT NOT NULL,
     CONSTRAINT fk_theatre_parent FOREIGN KEY (theatre_location) REFERENCES theatres(theatre_id),
     PRIMARY KEY(cinema_id)
 );
+ALTER TABLE movie_cinemas ADD base_layout INT NOT NULL;
+ALTER TABLE movie_cinemas ADD CONSTRAINT fk_cinema_base_layout FOREIGN KEY (base_layout) REFERENCES cinema_layout;
 
-CREATE TABLE buyed_seating(
-    buyed_seating_id SERIAL PRIMARY KEY,
-    transaction_id VARCHAR(50) NOT NULL,
-    movie_schedule_id VARCHAR(50) NOT NULL,
-    keterangan VARCHAR(50) NOT NULL,
-    CONSTRAINT FK_seat_schedule FOREIGN KEY (movie_schedule_id) REFERENCES movie_schedules(movie_schedule_id),
-    CONSTRAINT FK_seat_transaction FOREIGN KEY (transaction_id) REFERENCES h_schedule_trans(transaction_id)
-);
-ALTER table buyed_seating add column seating_id VARCHAR(50) not null;
+-- CREATE TABLE buyed_seating(
+--     buyed_seating_id SERIAL PRIMARY KEY,
+--     transaction_id VARCHAR(50) NOT NULL,
+--     movie_schedule_id VARCHAR(50) NOT NULL,
+--     keterangan VARCHAR(50) NOT NULL,
+--     CONSTRAINT FK_seat_schedule FOREIGN KEY (movie_schedule_id) REFERENCES movie_schedules(movie_schedule_id),
+--     CONSTRAINT FK_seat_transaction FOREIGN KEY (transaction_id) REFERENCES h_schedule_trans(transaction_id)
+-- );
+-- ALTER table buyed_seating add column seating_id VARCHAR(50) not null;
 
 CREATE TABLE movies(
     movie_name VARCHAR(50) NOT NULL,
@@ -129,15 +130,11 @@ CREATE TABLE movie_schedules(
     price INT,
     movie_schedule_id VARCHAR(50) NOT NULL,
     cinema_location VARCHAR(50),
-    available_seating_schema JSONB NOT NULL,
-    buyed_seating_schema JSONB,
     PRIMARY KEY(movie_schedule_id),
     CONSTRAINT fk_cinema FOREIGN KEY (cinema_location) REFERENCES movie_cinemas(cinema_id),
     CONSTRAINT fk_movie_id FOREIGN KEY (movie) REFERENCES movies(movie_id) 
 );
 ALTER TABLE movie_schedules ADD schedule_status BOOLEAN DEFAULT TRUE;
-
-
 
 CREATE TYPE transaction_type as ENUM ('offline','online');
 
@@ -150,7 +147,10 @@ CREATE TABLE h_schedule_trans(
     seating_buyed VARCHAR(55),
     PRIMARY KEY(transaction_id)
 );
+ALTER TABLE h_schedule_trans ADD movie_schedule_id VARCHAR(50) NOT NULL;
+ALTER TABLE h_schedule_trans ADD CONSTRAINT fk_transaction_schedule FOREIGN KEY(movie_schedule_id) REFERENCES movie_schedules(movie_schedule_id);
 
+--TAMBAH MOVIE_SCHEDULE ID
 CREATE TABLE d_schedule_trans(
     transaction_id VARCHAR(50) NOT NULL,
     schedule_id  VARCHAR(50) NOT NULL,
@@ -161,6 +161,31 @@ CREATE TABLE d_schedule_trans(
     CONSTRAINT fk_locket_trans FOREIGN KEY (locket_id) REFERENCES ticket_locket(locket_id)
 );
 ALTER TABLE d_schedule_trans ADD employee INT NOT NULL;
+
+CREATE TABLE cinema_layout (
+    layout_id SERIAL PRIMARY KEY,
+    layout_name VARCHAR(255),
+    seating_schema JSONB NOT NULL,
+    capacity INT NOT NULL,
+    layout_description VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE layout_seat (
+    seat_id SERIAL PRIMARY KEY,
+    layout_id INT,
+    row_code VARCHAR(10) NOT NULL,
+    SeatNumber INT,
+    seat_status VARCHAR(50),  -- e.g., 'active', 'maintenance'
+    FOREIGN KEY (layout_id) REFERENCES cinema_layout(layout_id)
+);
+
+CREATE TABLE movie_ticket(
+    ticket_id SERIAL PRIMARY KEY,
+    transaction_id VARCHAR(50) NOT NULL,
+    keterangan VARCHAR(50) NOT NULL,
+    seat_id INT NOT NULL,
+    CONSTRAINT fk_tiket_transaction FOREIGN KEY (transaction_id) REFERENCES h_schedule_trans(transaction_id)
+);
 
 -- bagian user
 CREATE TABLE user_credentials(
@@ -191,3 +216,31 @@ CREATE TABLE user_refresh_token(
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_user_refresh FOREIGN KEY(user_id) REFERENCES user_credentials(user_id)
 );
+
+-- CREATE TABLE Venue (
+--     VenueID INT PRIMARY KEY,
+--     Name VARCHAR(255),
+--     Address VARCHAR(255)
+-- );
+
+
+
+-- CREATE TABLE Event (
+--     EventID INT PRIMARY KEY,
+--     VenueID INT,
+--     LayoutID INT,
+--     EventName VARCHAR(255),
+--     EventDate DATETIME,
+--     FOREIGN KEY (VenueID) REFERENCES Venue(VenueID),
+--     FOREIGN KEY (LayoutID) REFERENCES Layout(LayoutID)
+-- );
+
+-- CREATE TABLE Ticket (
+--     TicketID INT PRIMARY KEY,
+--     EventID INT,
+--     SeatID INT,
+--     Price DECIMAL(10, 2),
+--     Status VARCHAR(50),  -- e.g., 'sold', 'reserved'
+--     FOREIGN KEY (EventID) REFERENCES Event(EventID),
+--     FOREIGN KEY (SeatID) REFERENCES Seat(SeatID)
+-- );
