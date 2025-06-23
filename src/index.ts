@@ -2,17 +2,22 @@ import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import { AppError, HttpCode } from "./utils/app-error.js";
 import logger from "./utils/cli-logger.js";
-import moviesRouter from "./router/movies/index.js";
-import authRouter from "./router/admin-auth/index.js";
+import authRouter from "./api/admin-auth/route.js";
 import cors from "cors";
-import movieScheduleRouter from "./router/movie_schedules/index.js";
-import workScheduleRouter from "./router/work_schedule/index.js";
+import workScheduleRouter from "./api/work_schedule/route.js";
 import cookieParser from "cookie-parser";
-import userAuth from "./router/user_auth/index.js";
+import { verifyAdminToken } from "./middlewares/verify-admin-token.js";
+import protectedMovieScheduleRouter from "./api/movie_schedules/protected/route.js";
+import publicMovieScheduleRouter from "./api/movie_schedules/public/route.js";
+import publicMoviesRouter from "./api/movies/public/route.js";
+import protectedMoviesRouter from "./api/movies/protected/route.js";
+import userRoute from "./api/user_auth/protected/route.js";
+import userAuthRoute from "./api/user_auth/public/route.js";
+import { verifyUserToken } from "./middlewares/verify-user-token.js";
 dotenv.config();
 const app = express();
 const port = process.env.APP_PORT || 3000;
-
+app.use(cookieParser());
 app.use(express.json());
 app.use(
   cors({
@@ -24,16 +29,21 @@ app.use(
     credentials: true,
   })
 );
-app.use(cookieParser());
+
 app.get("/", (req: Request, res: Response) => {
   res.send("Welcome to the Express App!");
 });
 
-app.use("/movies", moviesRouter);
-app.use("/auth", authRouter);
-app.use("/movieSchedule", movieScheduleRouter);
-app.use("/workSchedule", workScheduleRouter);
-app.use("/userAuth", userAuth);
+app.use("/auth", verifyAdminToken, authRouter);
+app.use("/movieSchedule", verifyAdminToken, protectedMovieScheduleRouter);
+app.use("/movies", verifyAdminToken, protectedMoviesRouter);
+app.use("/workSchedule", verifyAdminToken, workScheduleRouter);
+
+app.use("/user", verifyUserToken, userRoute);
+
+app.use("/userAuth", userAuthRoute);
+app.use("/public/movies", publicMoviesRouter);
+app.use("/public/movieSchedule", publicMovieScheduleRouter);
 
 process.on("uncaughtException", (error: Error) => {
   logger.error({
