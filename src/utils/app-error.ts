@@ -1,6 +1,6 @@
-import pino from "pino";
+import { pino } from "pino";
 
-const logger = pino.pino({
+const logger = pino({
   level: "info",
   timestamp: pino.stdTimeFunctions.isoTime,
   ...(process.env.NODE_ENV !== "production" && {
@@ -15,6 +15,7 @@ const logger = pino.pino({
   }),
 });
 
+const loggerv2 = pino;
 enum HttpCode {
   OK = 200,
   CREATED = 201,
