@@ -1,24 +1,27 @@
 # Node.js dependencies
-node_modules/
-npm-debug.log
-yarn.lock
-package-lock.json
+api/node_modules/
+api/npm-debug.log
+api/yarn.lock
+api/package-lock.json
 # Build output
-dist/
-build/
+api/dist/
 
 # Logs
 *.log
 
 # Environment variables
-.env
-.env.local
-.env.development
-.env.production
+api/.env
+api/.env.local
+api/.env.development
+api/.env.production
 
 # TypeScript compiled files
 *.tsbuildinfo
 
 # Editor files
-.vscode/
+api/.vscode/
 *.code-workspace
+
+#frontend
+frontend/package-lock.json
+frontend/node_modules/
